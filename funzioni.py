@@ -1,3 +1,34 @@
+from neo4j import GraphDatabase
+
+neo4j_uri = "bolt+s://126e5e68.databases.neo4j.io:7687"
+neo4j_user = "neo4j"
+neo4j_password = "ok1OvaNkJZwzpa5O_GcOgmIRJqZZkHUBkwoZUXdOsdw"
+
+
+def attiva() -> GraphDatabase.driver:
+    # funzione che apre la connessione
+    driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
+    return driver
+
+
+def spegni(driver: GraphDatabase.driver) -> None:
+    # funzione che chiude la connessione
+    driver.close()
+
+
+def ottieni_nodi(driver: GraphDatabase.driver) -> list or bool:
+    # funzione che restituisce una lista con tutti i nodi presenti
+    # restituisce falso se non trova nulla
+    try:
+        session=driver.session()
+        result = session.run("MATCH (n) RETURN n")
+        nodi = [record['n']['nome'] for record in result]
+        session.close()
+        return nodi
+    except:
+        return False
+
+
 def ottieni_piste_difficolta() -> list or bool:
     # funzione che trova tutte le piste in ordine di difficoltà.
     # restituisce una lista già ordinata in maniera crescente per difficoltà delle piste
