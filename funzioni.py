@@ -20,7 +20,7 @@ def ottieni_nodi(driver: GraphDatabase.driver) -> list or bool:
     # funzione che restituisce una lista con tutti i nodi presenti
     # restituisce falso se non trova nulla
     try:
-        session=driver.session()
+        session = driver.session()
         result = session.run("MATCH (n) RETURN n")
         nodi = [record['n']['nome'] for record in result]
         session.close()
@@ -43,15 +43,41 @@ def ottieni_piste_aperte() -> list or bool:
     ...
 
 
-def ottieni_percorso_breve(partenza, arrivo) -> list or bool:
+def ottieni_percorso_breve(partenza: str, arrivo: str, seggiovie: bool, driver: GraphDatabase.driver) -> list or bool:
     # funzione che trova il percorso più breve tra due punti
     # restituisce una lista di piste in ordine di percorso
     # restituisce falso se non trova nulla
     ...
 
 
-def ottieni_percorso_facile(partenza, arrivo) -> list or bool:
+def ottieni_percorso_facile(partenza: str, arrivo: str, seggiovie: bool,
+                            driver: GraphDatabase.driver) -> list and int or bool:
     # funzione che trova il percorso più facile tra due punti
     # restituisce una lista di piste in ordine di percorso
     # restituisce falso se non trova nulla
-    ...
+    print(partenza)
+    print(arrivo)
+    MATCH=''
+    if seggiovie:
+        MATCH = 'MATCH path = (start:Limite_pista {nome: \'' + partenza + '\'})-[:PISTA|SEGGIOVIA_SALITA|SEGGIOVIA_DISCESA|SKILIFT*]->(end:Limite_pista {nome:\'' + arrivo + '\'}) '
+    else:
+        MATCH = 'MATCH path = (start:Limite_pista {nome: \'' + partenza + '\'})-[:PISTA|SEGGIOVIA_SALITA|SKILIFT*]->(end:Limite_pista {nome:\'' + arrivo + '\'}) '
+    WHERE = 'WHERE ALL(rel in relationships(path) WHERE rel.aperto = true) '
+    RETURN = 'RETURN path, REDUCE(s = 0, rel IN relationships(path) | s + rel.difficolta) AS difficoltà_totale '
+    ORDER_BY = 'ORDER BY difficoltà_totale '
+    LIMIT = 'LIMIT 1'
+    query = MATCH + WHERE + RETURN + ORDER_BY + LIMIT
+    print(query)
+    try:
+        temp_session = driver.session()
+        result = temp_session.run(query)
+        result = result.single()
+        temp_session.close()
+    except:
+        return False
+    path = result["path"]
+    out_nodi = [node["nome"] for node in path.nodes]
+    out_archi = [rel["nome"] for rel in path.relationships]
+    print(out_nodi)
+    print(out_archi)
+    return out_nodi, out_archi, result["difficoltà_totale"]
