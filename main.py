@@ -3,6 +3,8 @@ import funzioni as fn
 if __name__ == '__main__':
     driver = fn.attiva()
     punti = fn.ottieni_nodi(driver)
+    if not punti:
+        print('panico')
     includi_seggiovie = False
     while 1:
         print('Benvenuto nell\'app degli sciatori')
@@ -52,8 +54,17 @@ if __name__ == '__main__':
             if inizio == fine:
                 print('Sei arrivato')
             else:
-                percorso = fn.ottieni_percorso_facile(partenza=punti[inizio], arrivo=punti[fine],
-                                                      seggiovie=includi_seggiovie, driver=driver)
+                nodi, archi, dif_tot = fn.ottieni_percorso_facile(partenza=punti[inizio], arrivo=punti[fine],
+                                                                  seggiovie=includi_seggiovie, driver=driver)
+                if nodi:
+                    print('partendo ', end='')
+                    arrivo = len(nodi)
+                    for num, _ in enumerate(nodi):
+                        if num < arrivo - 1:
+                            print(f"da {nodi[num]}, prendi il percorso {archi[num]} per arrivare a {nodi[num + 1]}")
+                    print(f'sei arrivato, la difficoltà totale è di: {dif_tot}')
+                else:
+                    print('percorso non disponibile')
         if num == 2:
             fine, inizio = '', ''
             for num, nodo in enumerate(punti):
@@ -83,9 +94,25 @@ if __name__ == '__main__':
             if inizio == fine:
                 print('Sei arrivato')
             else:
-                percorso = fn.ottieni_percorso_breve(partenza=punti[inizio], arrivo=punti[fine],
-                                                     seggiovie=includi_seggiovie, driver=driver)
-
+                nodi, archi, tempo_tot = fn.ottieni_percorso_breve(partenza=punti[inizio], arrivo=punti[fine],
+                                                                   seggiovie=includi_seggiovie, driver=driver)
+                if nodi:
+                    print('partendo ', end='')
+                    arrivo = len(nodi)
+                    for num, _ in enumerate(nodi):
+                        if num < arrivo - 1:
+                            print(f"da {nodi[num]}, prendi il percorso {archi[num]} per arrivare a {nodi[num + 1]}")
+                    print(f'sei arrivato, il tempo totale stimato è di: {tempo_tot} minuti')
+                else:
+                    print('percorso non disponibile')
+        if num == 3:
+            difficolta = fn.ottieni_piste_difficolta(driver)
+            for pista in difficolta:
+                print(f'{pista[0]}: difficoltà {pista[1] - 1}')
+        if num == 4:
+            stato = fn.ottieni_piste_aperte(driver)
+            for pista in stato:
+                print(pista)
         if num == 9:
             includi_seggiovie = not includi_seggiovie
 ## usa il path
