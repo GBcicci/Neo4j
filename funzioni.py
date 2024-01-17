@@ -1,8 +1,8 @@
 from neo4j import GraphDatabase
 
-neo4j_uri = "bolt+s://126e5e68.databases.neo4j.io:7687"
+neo4j_uri = "neo4j+s://ac0433a0.databases.neo4j.io"
 neo4j_user = "neo4j"
-neo4j_password = "ok1OvaNkJZwzpa5O_GcOgmIRJqZZkHUBkwoZUXdOsdw"
+neo4j_password = "Puxj8A5JEz6zEwTowkvsZGxZIpIwtoH-XXB5q2ymGck"
 
 
 def attiva() -> GraphDatabase.driver:
@@ -29,14 +29,18 @@ def ottieni_nodi(driver: GraphDatabase.driver) -> list or bool:
         return False
 
 
-def ottieni_piste_difficolta() -> list or bool:
-    # funzione che trova tutte le piste in ordine di difficoltà.
-    # restituisce una lista già ordinata in maniera crescente per difficoltà delle piste
-    # restituisce falso se non trova nulla
-    ...
+def ottieni_piste_difficolta(driver):
+    query = """
+    MATCH (p:Pista)
+    RETURN p.nome, p.difficolta
+    ORDER BY p.difficolta
+    """
+    with driver.session() as session:
+        result = session.run(query)
+        piste_difficolta = [(record["p.nome"], record["p.difficolta"]) for record in result]
+        return piste_difficolta if piste_difficolta else False
 
-
-def ottieni_piste_aperte() -> list or bool:
+def ottieni_piste_aperte(driver):
     # funzione che trova tutte le piste aperte.
     # restituisce una lista
     # restituisce falso se non trova nulla
