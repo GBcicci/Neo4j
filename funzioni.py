@@ -41,10 +41,14 @@ def ottieni_piste_difficolta(driver):
         return piste_difficolta if piste_difficolta else False
 
 def ottieni_piste_aperte(driver):
-    # funzione che trova tutte le piste aperte.
-    # restituisce una lista
-    # restituisce falso se non trova nulla
-    ...
+    query = """
+    MATCH (p:Pista {aperto: true})
+    RETURN p.nome
+    """
+    with driver.session() as session:
+        result = session.run(query)
+        piste_aperte = [record["p.nome"] for record in result]
+        return piste_aperte if piste_aperte else False
 
 
 def ottieni_percorso_breve(partenza: str, arrivo: str, seggiovie: bool, driver: GraphDatabase.driver) -> list or bool:
